@@ -69,6 +69,7 @@ export default class TabViewTransitioner extends PureComponent<DefaultProps, Pro
   state: State;
 
   componentDidMount() {
+    this._mounted = true;
     this._positionListener = this.state.position.addListener(this._trackPosition);
   }
 
@@ -79,9 +80,11 @@ export default class TabViewTransitioner extends PureComponent<DefaultProps, Pro
   }
 
   componentWillUnmount() {
+    this._mounted = false;
     this.state.position.removeListener(this._positionListener);
   }
 
+  _mounted: boolean = false;
   _nextIndex: ?number;
   _lastPosition: ?number;
   _positionListener: string;
@@ -158,6 +161,11 @@ export default class TabViewTransitioner extends PureComponent<DefaultProps, Pro
   }
 
   _jumpToIndex = (index: number) => {
+    if (!this._mounted) {
+      // We are no longer mounted, this is a no-op
+      return;
+    }
+
     const { canJumpToTab, navigationState } = this.props;
 
     if (canJumpToTab && !canJumpToTab(navigationState.routes[index])) {
